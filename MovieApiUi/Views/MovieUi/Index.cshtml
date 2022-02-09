@@ -1,0 +1,187 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+    Layout = null;
+}
+
+<style>
+    form{
+       margin-left:370px;
+    }
+    h1,h5 {
+        margin-left: 450px;
+    }
+    table{
+        margin:10px;
+    }
+    #btnSaveTutorial,#EditMovies
+    {
+       margin:20px;
+    }
+</style>
+
+@model MovieApiUI.Models.dataprop
+
+
+<link href="~/lib/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet" />
+<div class="container">
+<h1>Movie List</h1>
+<table class="table table-bordered table-success">
+    <thead><tr><th>Movie Id</th><th>MovieName</th><th>Language</th><th>Genre</th></tr></thead>
+    <tbody id="Tutorialdata">
+    </tbody>
+</table>
+
+<h5>Add and Update Movie</h5>
+
+<form method="post" class="form-control-sm">
+    <table id="tab">
+        <tr><td>MovieId</td><td><input id="movieid" type="text" asp-for="movieid" value="" /></td></tr>
+        <tr><td>Movie Name</td><td><input id="moviename" type="text" asp-for="moviename" value="" /></td></tr>
+        <tr><td>Language</td><td><input id="movielang" type="text" asp-for="language" value="" /></td></tr>
+        <tr><td>Genre</td><td><input id="moviegenre" type="text" asp-for="genre" value="" /></td></tr>
+        <tr><td><input id="btnSaveTutorial" class="btn btn-outline-primary" type="button" value="Save" /></td>
+        <td><input id="EditMovies" class="btn btn-outline-primary" onclick="EditMovie()" type="button" value="Update" /></td></tr>
+    </table>
+</form>
+</div>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script type="text/javascript" src="~\lib\jquery\dist\jquery.js"></script>
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        ShowMovie()
+    });
+
+    function DeleteTutorial(id1) {
+        $.ajax({
+            type: "DELETE",
+            url: "https://localhost:8080/Data/DeleteTutorial?movieid=" + $(id1).data("id"),
+            crossDomain: true,
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            success: function (response) {
+                ShowTutorialData();
+                alert("deleted successfully");
+            },
+            failure: function (response) {
+                debugger;
+                alert(response.responseText);
+            },
+            error: function (response) {
+                debugger;
+                alert(response.responseText);
+            }
+        });
+    }
+    function ShowMovie() {
+        $.ajax({
+            type: "GET",
+            url: "https://localhost:8080/Data",
+            crossDomain: true,
+            contentType: 'application/json; charset=utf-8',
+            dataType: 'json',
+            success: function (response) {
+                var rows = '';
+                for (var i = 0; i < response.length; i++) {
+                    rows = rows + "<tr><td>" + response[i].movieid + "</td><td>" + response[i].moviename + "</td><td>" + response[i].language + "</td><td>" + response[i].genre + "</td><td><button  class='btn btn-outline-primary' id='Edit' data-id=" + response[i].movieid + " onclick='EditTutorial(this)'>Edit</button></td><td><button id='DeleteTutorial' class='btn btn-outline-primary'  data-id=" + response[i].movieid + " onclick='DeleteTutorial(this)'>Delete</button></td></tr>";
+                }
+                $("#Tutorialdata").append(rows);
+                console.log(response);
+            },
+
+            failure: function (response) {
+                debugger;
+                alert(response.responseText);
+            },
+            error: function (response) {
+                debugger;
+                alert(response.responseText);
+            },
+
+        });
+    };
+    $("#btnSaveTutorial").click(function () {
+        var movie = new Object();
+        movie.movieid = $('#movieid').val();
+        movie.moviename = $('#moviename').val();
+        movie.language = $('#movielang').val();
+        movie.genre = $('#moviegenre').val();
+      
+        $.ajax({
+            type: "POST",
+            url: "https://localhost:8080/Data/InsertTutorial",
+            crossDomain: true,
+            data:JSON.stringify(movie),
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            success: function (response) {
+            },
+            failure: function (response) {
+                debugger;
+                alert(response.responseText);
+            },
+            error: function (response) {
+                debugger;
+                alert(response.responseText);
+            }
+        });
+    });
+
+    function EditMovie() {
+        var movie = new Object();
+        movie.movieid = $('#movieid').val();
+        movie.moviename = $('#moviename').val();
+        movie.language = $('#movielang').val();
+        movie.genre = $('#moviegenre').val();
+        $.ajax({
+            type: "PUT",
+            url: "https://localhost:8080/Data/UpdateTutorial",
+            crossDomain: true,
+            data: JSON.stringify(movie),
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            success: function (response) {
+                alert('Update Succefull');
+            },
+            failure: function (response) {
+                debugger;
+                alert(response.responseText);
+            },
+            error: function (response) {
+                debugger;
+                alert(response.responseText);
+            }
+        });
+
+        $("#tab").hide("slow");
+    }
+    function EditTutorial(ctl) {
+        $("#tab").show("slow");
+        $.ajax({
+            type: "GET",
+            url: "https://localhost:8080/Data/GetTutorialById?movieid=" + $(ctl).data("id"),
+            crossDomain: true,
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            success: function (response) {
+                $("#movieid").val(response.movieid);
+                $("#moviename").val(response.moviename);
+                $('#movielang').val(response.language);
+                $('#moviegenre').val(response.genre);
+            },
+            failure: function (response) {
+                debugger;
+                alert(response.responseText);
+            },
+            error: function (response) {
+                debugger;
+                alert(response.responseText);
+            }
+        });
+    }
+
+</script>
+
